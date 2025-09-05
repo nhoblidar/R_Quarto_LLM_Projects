@@ -1,5 +1,8 @@
 ## Policy Brief Generator
 
+https://nhoblidar.github.io/R_Quarto_LLM_Projects/
+Check this link for a similar HTML view (no graphs are displayed)
+
 This project automatically generates plain-English policy briefs from real unemployment data using R, Quarto, and Large Language Models (LLMs). It includes data analysis, visualizations, and AI-powered policy implications, all in a fully reproducible workflow.  
 
 Note: To run the project, you need an OpenAI API key. Store it in your `.Renviron` file or set it in R using `Sys.setenv(OPENAI_API_KEY = "your_api_key_here")`. The API key is required to generate the LLM summaries.
