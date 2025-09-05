@@ -1,0 +1,125 @@
+---
+title: "Automated Policy Brief: Unemployment Trends"
+author: "Nandini Subramanya Hoblidar"
+format: html
+output-dir: docs
+---
+
+# **Policy Brief Generator**
+
+### Introduction
+
+Policy briefs help translate complex data into actionable insights for policymakers, nonprofits, and the public. Traditionally, creating these briefs requires manual data cleaning, analysis, visualization, and writing.
+
+### Why This Project Matters
+
+Policy briefs help translate data into insights for decision-makers. But writing them takes time, and technical findings are often hard to communicate to non-technical audiences.
+
+This project shows how to use **R + Quarto + Large Language Models (LLMs)** to create automated, reproducible policy briefs. The LLM helps generate clear, plain-English summaries of the data analysis, making research more accessible to policymakers, nonprofits, and the public.
+
+### What This Project Does
+
+-   Loads a real dataset (e.g., unemployment rates).\
+-   Summarizes and visualizes trends in R.\
+-   Calls an LLM to automatically draft a **Policy Implications** section.\
+-   Compiles everything into a professional, reproducible report with Quarto.
+
+### How It Can Help
+
+-   **Faculty** can use it as a teaching module on reproducible research and AI-powered reporting.\
+-   **Students** can learn both data science workflows and applied AI for communication.
+
+```{r}
+#install packages
+#install.packages(c("tidyverse", "ggplot2", "readr", "httr", "jsonlite","ellmer","remotes"))
+
+```
+
+Load the necessary packages (tidyverse for data manipulation, ellmer for LLM integration)
+
+Read your CSV file into R
+
+head shows the first 6 rows in your report so readers can see the data
+
+```{r}
+# Load libraries
+library(tidyverse)
+library(ellmer)
+
+# Load unemployment dataset
+unemp <- read_csv("data/unemployment.csv", show_col_types = FALSE)
+```
+
+```{r}
+#col type
+spec(unemp)
+```
+
+```{r}
+
+# Preview the first few rows
+head(unemp)
+```
+
+Summary gives a quick overview (min, max, mean, median) of the unemployment trends.
+
+```{r}
+# Summary statistics of unemployment rates
+summary(unemp$UnemploymentRate)
+```
+
+Plots unemployment over time
+
+Shows trends and highlights spikes (like in 2020 for the pandemic)
+
+```{r}
+ggplot(unemp, aes(x = Year, y = UnemploymentRate)) +
+  geom_line(color = "steelblue", linewidth = 1.5) +
+  geom_point(color = "red", size = 3) +
+  theme_minimal() +
+  labs(title = "Unemployment Rate (2010–2024)",
+       x = "Year",
+       y = "Unemployment Rate (%)")
+
+```
+
+We want to give the LLM a summary of the dataset in plain text
+
+```{r}
+# Create a summary string for the LLM
+data_summary <- paste(
+  "Unemployment data over the years:\n",
+  paste(unemp$Year, unemp$UnemploymentRate, sep=": ", collapse="\n")
+)
+
+data_summary
+```
+
+The LLM will use the table converted to a string to generate the policy summary
+
+Calling GPT via Ellmer
+
+Creating a prompt to specify the LLM what to do with what data
+
+```{r}
+
+# Create the policy prompt
+prompt <- paste(
+  "Based on the following unemployment data, write few paragraphs plain-English policy implications summary for policymakers:\n",
+  data_summary
+)
+```
+
+The model to use for the chat defaults to "gpt-4.1" if we don't specify anything.
+
+```{r}
+chat <- chat_openai(
+  model = NULL,
+  system_prompt = prompt)
+```
+
+Now we can see the summary of the data provided and reasoning about the unemployment rates. Note that our data has only 2 columns Unemployment Rate and Year respectively.
+
+```{r}
+chat$chat(prompt)
+```
